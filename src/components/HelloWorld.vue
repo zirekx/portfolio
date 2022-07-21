@@ -1,59 +1,176 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-vuex" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
+  <div>
+<div id="wrapper">
+ <div id='player_wrapper' >
+  <video
+  ref = "videoPlayer"
+  @mouseover="hover = true"
+  @mouseout="hover = false"
+  @click="toggle_vid"
+  id='video_player'>
+   <source src='@/assets/filmik.mp4' type='video/mp4'>
+  </video>
+  <div id='player_controls'
+  v-show="hover"
+  @mouseover="hover = true"
+  @mouseout="hover = false"
+  >
+
+   <input v-if="isPlaying" type="image" 
+   :src="pauseButtonImage" 
+   @click="toggle_vid" id="play_button">
+   <input v-else type="image" 
+   :src="playButtonImage" 
+   @click="toggle_vid" id="play_button">
+  <progress refs="progress" id="progress" max="100" value="0"> Progress </progress>
+  
+   <img v-if="muted" :src='mutedImage' id="vol_img" @click="mute_video">
+   <img v-else :src='soundImage' id="vol_img" @click="mute_video">
+   <input ref = "volumePlayer" type="range" id="change_vol" @click="change_volume" step="0.05" min="0" max="1"  v-model="volumeValue">
+   <input
+    @click="toggle_fullscreen"
+    type="image" :src="fulscreenImage" id="fullscreen">
   </div>
+ </div>
+</div>
+  </div>
+
 </template>
 
 <script>
 export default {
   name: 'HelloWorld',
-  props: {
-    msg: String
+  data() {
+    return{
+      isPlaying: false,
+      playButtonImage: require('@/assets/play.png'),
+      pauseButtonImage: require('@/assets/pause.png'),
+      soundImage: require('@/assets/sound.png'),
+      mutedImage: require('@/assets/muted.png'),
+      fulscreenImage:require('@/assets/fullscreen.png'),
+      closefullscreenImage:require('@/assets/closefullscreen.png'),
+      currentTime: 0,
+      muted:0,
+      volumeValue:1,
+      hover:false,
+      
+      //https://freshman.tech/custom-html5-video/
+      
+    }
+  },
+  methods: {
+    toggle_vid(){
+      if(this.$refs.videoPlayer.paused)
+       {
+        this.isPlaying = true;
+        this.$refs.videoPlayer.play();
+       }
+       else{
+        this.$refs.videoPlayer.pause();
+        this.isPlaying = false;
+       }
+
+    },
+    change_volume(){
+      this.$refs.videoPlayer.volume= this.volumeValue;
+      if(this.$refs.videoPlayer.volume==0){
+        this.muted=1;
+
+      }
+      else{
+        this.muted=0;
+      }
+    },
+    stop_video(){
+      this.$refs.videoPlayer.pause();
+      this.currentTime = 0;
+
+    },
+    mute_video(){
+      if(this.muted==0){
+        this.$refs.videoPlayer.volume=0;
+        this.muted=1;
+      }
+      else{
+        this.$refs.videoPlayer.volume=1;
+        this.muted=0;
+      }
+    },
+    toggle_fullscreen(){
+      this.$refs.videoPlayer.webkitRequestFullScreen();
+    }
+    
+  },
+  computed:{
+    
   }
 }
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-h3 {
-  margin: 40px 0 0;
+$primary-color: #2cbc63;
+.toggle-fullscreen{
+  width:100vw;
+  height:100vh;
 }
-ul {
-  list-style-type: none;
-  padding: 0;
+#wrapper
+{
+ text-align:center;
+ margin:0 auto;
+ padding:0px;
+ width:100%;
 }
-li {
-  display: inline-block;
-  margin: 0 10px;
+#player_wrapper
+{
+ position:relative;
+ width:400px;
+ margin-left:300px;
 }
-a {
-  color: #42b983;
+#video_player
+{
+ width:1000px;
 }
+
+#player_controls
+{
+  opacity: 0.8;
+   // transition: opacity 1s 2s;
+ top:93%;
+ position:absolute;
+ background: rgba(0, 0, 0, 0.5);
+ width:1000px;
+ padding:7px;
+ box-sizing:border-box;
+
+}
+#video_player:hover + #player_controls{
+ //opacity: 1;
+    //transition: opacity 0.5s 0s;
+}
+input[type="image"]
+{
+ float:left;
+ height:20px;
+ margin-left:2px;
+ margin-right:5px;
+ margin-top:2px;
+}
+#vol_img
+{
+ margin-left:150px;
+ width:20px;
+}
+.change_vol{
+  float:right;
+}
+input[type="range"]{
+  accent-color:$primary-color;
+  
+}
+#fullscreen{
+  position:absolute;
+  left:96%;
+}
+
 </style>
