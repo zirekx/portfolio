@@ -1,8 +1,8 @@
 <template>
-  <div>
+<div>
 <div id="wrapper">
  <div id='player_wrapper' >
-  <video
+  <video @timeupdate="currentTime"
   ref = "videoPlayer"
   @mouseover="hover = true"
   @mouseout="hover = false"
@@ -22,6 +22,7 @@
    <input v-else type="image" 
    :src="playButtonImage" 
    @click="toggle_vid" id="play_button">
+   {{currentTime}}
   <progress refs="progress" id="progress" max="100" value="0"> Progress </progress>
   {{videoDuration}}
    <img v-if="muted" :src='mutedImage' id="vol_img" @click="mute_video">
@@ -55,7 +56,7 @@ export default {
       volumeValue:1,
       hover:false,
       
-      //https://freshman.tech/custom-html5-video/
+     
       
     }
   },
@@ -99,13 +100,15 @@ export default {
     },
     toggle_fullscreen(){
       this.$refs.videoPlayer.webkitRequestFullScreen();
-    }
+    },
+    
     
   },
-  mounted:{
-    get_duration(){
-      this.videoDuration= this.$refs.videoPlayer;
-    }
+  mounted(){
+    
+      return this.videoDuration = this.$refs.videoPlayer.duration;
+      
+    
   }
 }
 </script>
