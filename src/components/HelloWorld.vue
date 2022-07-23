@@ -23,10 +23,10 @@
    :src="playButtonImage" 
    @click="toggle_vid" id="play_button">
   <progress refs="progress" id="progress" max="100" value="0"> Progress </progress>
-  
+  {{videoDuration}}
    <img v-if="muted" :src='mutedImage' id="vol_img" @click="mute_video">
    <img v-else :src='soundImage' id="vol_img" @click="mute_video">
-   <input ref = "volumePlayer" type="range" id="change_vol" @click="change_volume" step="0.05" min="0" max="1"  v-model="volumeValue">
+   <input ref = "volumePlayer" type="range" id="change_vol" v-on:change="change_volume" step="0.05" min="0" max="1"  v-model="volumeValue">
    <input
     @click="toggle_fullscreen"
     type="image" :src="fulscreenImage" id="fullscreen">
@@ -50,6 +50,7 @@ export default {
       fulscreenImage:require('@/assets/fullscreen.png'),
       closefullscreenImage:require('@/assets/closefullscreen.png'),
       currentTime: 0,
+      videoDuration:0,
       muted:0,
       volumeValue:1,
       hover:false,
@@ -92,7 +93,7 @@ export default {
         this.muted=1;
       }
       else{
-        this.$refs.videoPlayer.volume=1;
+        this.$refs.videoPlayer.volume=this.volumeValue;
         this.muted=0;
       }
     },
@@ -101,8 +102,10 @@ export default {
     }
     
   },
-  computed:{
-    
+  mounted:{
+    get_duration(){
+      this.videoDuration= this.$refs.videoPlayer;
+    }
   }
 }
 </script>
