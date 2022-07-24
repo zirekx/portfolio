@@ -2,7 +2,10 @@
 <div>
 <div id="wrapper">
  <div id='player_wrapper' >
-  <video @timeupdate="currentTime"
+  <video @loadedmetadata="videoDurationlog"
+  @timeupdate="videoCurrentTime"
+  @progress="checkProgress"
+  
   ref = "videoPlayer"
   @mouseover="hover = true"
   @mouseout="hover = false"
@@ -22,9 +25,9 @@
    <input v-else type="image" 
    :src="playButtonImage" 
    @click="toggle_vid" id="play_button">
-   {{currentTime}}
-  <progress refs="progress" id="progress" max="100" value="0"> Progress </progress>
-  {{videoDuration}}
+   <span>{{currentVideoTime}}</span>
+  <progress refs="progress" id="progress" max="100" :value="currentProgress"> Progress </progress>
+  <span>{{videoDuration}}</span>
    <img v-if="muted" :src='mutedImage' id="vol_img" @click="mute_video">
    <img v-else :src='soundImage' id="vol_img" @click="mute_video">
    <input ref = "volumePlayer" type="range" id="change_vol" v-on:change="change_volume" step="0.05" min="0" max="1"  v-model="volumeValue">
@@ -39,6 +42,7 @@
 </template>
 
 <script>
+
 export default {
   name: 'HelloWorld',
   data() {
@@ -50,8 +54,9 @@ export default {
       mutedImage: require('@/assets/muted.png'),
       fulscreenImage:require('@/assets/fullscreen.png'),
       closefullscreenImage:require('@/assets/closefullscreen.png'),
-      currentTime: 0,
-      videoDuration:0,
+      currentVideoTime: "00:00",
+      videoDuration:"",
+      currentProgress:0,
       muted:0,
       volumeValue:1,
       hover:false,
@@ -101,12 +106,43 @@ export default {
     toggle_fullscreen(){
       this.$refs.videoPlayer.webkitRequestFullScreen();
     },
+    time_format(num){
+      let hours= Math.floor(num / 3600);
+      let minutes = Math.floor((num % 3600)/60);
+      let seconds = Math.floor(num % 60);
+
+      hours = hours < 10 ? "0" + hours : hours;
+      minutes = minutes < 10 ? "0" + minutes : minutes;
+      seconds = seconds < 10 ? "0" + seconds : seconds;
+
+      if(hours>0){
+        return  hours+':'+minutes+":"+seconds
+      }
+      else{
+        return  minutes+":"+seconds;
+        
+      }
+    },
+    videoDurationlog(){
+      return this.videoDuration = this.time_format(this.$refs.videoPlayer.duration);
+    
+    },
+    videoCurrentTime(){
+      return this.currentVideoTime = this.time_format(this.$refs.videoPlayer.currentTime);
+    },
+    checkProgress(){
+      //return this.currentProgress = Math.floor((this.currentVideoTime/this.videoDuration)*100);
+     //return this.currentProgress = Math.floor((this.$refs.videoPlayer.currentTime/this.$refs.videoPlayer.duration)*100);
+    }
+
     
     
   },
   mounted(){
-    
-      return this.videoDuration = this.$refs.videoPlayer.duration;
+    console.log(this.$refs.videoPlayer.currentTime);
+    console.log(this.$refs.videoPlayer.duration);
+    console.log(Math.floor((this.$refs.videoPlayer.currentTime/this.$refs.videoPlayer.duration)*100));
+      
       
     
   }
@@ -178,5 +214,12 @@ input[type="range"]{
   position:absolute;
   left:96%;
 }
+
+  span{
+    color:White;
+    padding-left:5px;
+    padding-right:5px;
+  }
+
 
 </style>
